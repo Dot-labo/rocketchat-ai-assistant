@@ -10,7 +10,7 @@ Enhance your Rocket.Chat server with AI capabilities by integrating the latest O
 ## Setup Instructions
 ### 1. clone the repository
 ```
-git clone --recurse-submodules https://github.com/Dot-labo/rocket_ai_assistant
+git clone --recurse-submodules https://github.com/Dot-labo/rocketchat-ai-assistant
 ```
    
 ### 2. Install dependencies
