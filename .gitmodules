@@ -1,0 +1,4 @@
+[submodule "rocketchat-async"]
+	path = rocketchat-async
+	url = https://github.com/kato-mahiro/rocketchat-async
+	branch = feat/thread_typing_event
