@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "rocketchat-ai-assistant"
+version = "0.1.0"
+description = "Integrate AI for your rocket.chat server!"
+authors = ["kato-mahiro <kato.mahiro.3@gmail.com>"]
+readme = "README.md"
+packages = [{include = "rocketchat-ai-assistant"}]
+
+[tool.poetry.dependencies]
+rocketchat-async={path="./rocketchat-async"}
+python = "^3.9"
+openai = "1.3.6"
+requests = "^2.31.0"
+rocketchat-api = "^1.31.0"
+websocket-client = "^1.7.0"
+python-dotenv = "^1.0.0"
+fastapi = {extras = ["all"], version = "^0.108.0"}
+aiohttp = "^3.9.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
