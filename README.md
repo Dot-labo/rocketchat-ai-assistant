@@ -37,6 +37,7 @@ AI_PROMPT="You are ..."
 
 ### 5. Run the server
 ```
+poetry shell
 uvicorn main:app --port 8000
 ````
 
