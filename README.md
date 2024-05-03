@@ -2,7 +2,7 @@
 
 Enhance your Rocket.Chat server with AI capabilities by integrating the latest OpenAI ChatGPT-4 Turbo model for real-time messaging.
 This integration does not require any installations or modifications to your Rocket.Chat server itself, making it easy to deploy.
-All you need are two steps: 1. create an account for the bot on Rocket.Chat, and 2. clone this repository and set up the server on your PC.
+All you need are two steps: 1. create an account for the bot on Rocket.Chat, and 2. Download this repository to your PC and run the server program.
 Currently, the system supports only the OpenAI ChatGPT-4 Turbo model, but we are planning to expand support to include a variety of models in the future to accommodate a broader range of functionalities and use cases.
 
 ## Requirements
