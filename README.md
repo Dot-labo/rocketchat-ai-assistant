@@ -46,4 +46,4 @@ uvicorn main:app --port 8000
 
 ## Additional Information
 - Ensure that your network settings allow traffic on the specified port (default: 8000).
-- Occasionally, typing events fail to generate properly. The specific cause is unclear, but alleviating the API rate_limit settings in the management console of rocket.chat sometimes leads to improvement.
+- Occasionally, typing events fail to generate properly when using the Rocket.Chat application. It has been observed that when the Rocket.Chat app is used through a PC browser, typing events are generally sent without issues. The specific cause of the failure in other situations is unclear, but adjusting the API rate_limit settings in the management console of Rocket.Chat sometimes leads to improvement.
