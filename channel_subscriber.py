@@ -80,7 +80,7 @@ class ChannelSubscriber:
             try:
                 await self.rc.start(self.config.socket_url, self.config.username, self.config.password)
                 await self.rc.subscribe_to_channel_messages(self.channel_id, self.subscribe_callback)
-                await self.rc.send_message(text=f"*System Notification*: AI response server has started. *{self.config.username}* is now responsive.", channel_id=self.channel_id, thread_id=None)
+                await self.rc.send_message(text=f"*Hi. I'm ready.*", channel_id=self.channel_id, thread_id=None)
                 await self.rc.run_forever()
 
             except Exception as e:

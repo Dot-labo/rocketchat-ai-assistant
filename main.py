@@ -49,7 +49,7 @@ async def shutdown_event():
     await rc.start(config.socket_url, config.username, config.password)
     for channel_id, channel_type in await rc.get_channels():
         print(channel_id, channel_type)
-        await rc.send_message(text=f"*System Notification*: AI response server has stopped. *{config.username}* is not responding.", channel_id=channel_id, thread_id=None)
+        await rc.send_message(text=f"*Bye.*", channel_id=channel_id, thread_id=None)
 
 @app.post("/gpt_response")
 async def gpt_response(input: ResponseMessageModel):
