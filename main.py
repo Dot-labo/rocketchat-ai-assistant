@@ -10,6 +10,10 @@ from rocketchat_async import RocketChat
 
 from utils.config import Config
 
+def auto_launch_server_callback(channel_id, channel_qualifier, event_type, info):
+    print(channel_id, channel_qualifier, event_type),
+
+
 class ResponseMessageModel(BaseModel):
     assistant_id: str
     ai_thread_id: str
@@ -31,6 +35,8 @@ async def startup_event():
         print(channel_id, channel_type)
         cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id)
         asyncio.create_task(cs.up())
+    await rc.subscribe_to_channel_changes(auto_launch_server_callback)
+    
 
 @app.on_event("shutdown")
 async def shutdown_event():
