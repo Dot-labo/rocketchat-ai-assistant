@@ -17,7 +17,7 @@ class ChannelSubscriber:
         self.config = Config("./.env")
         self.channel_id = channel_id
         self.rc = RocketChat()
-        self.client = OpenAI()
+        self.client = OpenAI(organization=self.config.openai_organization) if self.config.openai_organization else OpenAI()
         self.thread_mapping = {}
         self.assistant = self.client.beta.assistants.create(
             name = "Rocket chat assistant",
