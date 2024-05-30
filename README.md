@@ -35,6 +35,7 @@ NAME=bot
 PASSWORD=password
 PORT=8000
 OPENAI_API_KEY=sk-xxxxx
+OPENAI_ORGANIZATION=org-xxx (optional)
 AI_PROMPT="You are ..."
 ```
 
