@@ -53,10 +53,11 @@ async def shutdown_event():
 
 @app.post("/gpt_response")
 async def gpt_response(input: ResponseMessageModel):
+    config = Config("./.env")
     print("#DEBUG in gpt_response(FastAPI)")
     input_message = input.input_message
     user = input.user_name
-    client = OpenAI()
+    client = OpenAI(organization=config.openai_organization) if config.openai_organization else OpenAI()
     assistant_id = input.assistant_id
     ai_thread_id = input.ai_thread_id
 
