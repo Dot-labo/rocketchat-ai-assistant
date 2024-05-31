@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rocketchat-ai-assistant"
-version = "0.1.0"
+version = "0.1.1"
 description = "Integrate AI for your rocket.chat server!"
 authors = ["kato-mahiro <kato.mahiro.3@gmail.com>"]
 readme = "README.md"
