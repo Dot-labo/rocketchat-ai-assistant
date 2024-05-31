@@ -17,8 +17,9 @@ class ChannelSubscriber:
         self.config = Config("./.env")
         self.channel_id = channel_id
         self.rc = RocketChat()
-        self.client = OpenAI()
+        self.client = OpenAI(organization=self.config.openai_organization) if self.config.openai_organization else OpenAI()
         self.thread_mapping = {}
+        self.subscription_id = None
         self.assistant = self.client.beta.assistants.create(
             name = "Rocket chat assistant",
             description = "You are talking to an AI assistant chat bot.",
@@ -42,12 +43,25 @@ class ChannelSubscriber:
         asyncio.create_task(self.process_incoming_messages(*args))
 
     async def process_incoming_messages(self, channel_id, sender_id, msg_id, thread_id, msg, qualifier, unread, re_received):
+        print("=== DEBUG: process_incoming_messages ===")
+        print(f"channel_id: {channel_id}, sender_id: {sender_id}, msg_id: {msg_id}, thread_id: {thread_id}, msg: {msg}, qualifier: {qualifier}, unread: {unread}, re_received: {re_received}\n")
         """
         Handle incoming messages and perform actions based on the message context.
+        - Unsubscribes if no longer member of the channel.
         - Ends if the message is re-received.
         - Creates a new thread for new messages with mentions.
         - Replies within the existing thread for threaded messages with mentions.
         """
+        tmp_rc = RocketChat() #self.rc is not working here
+        config = Config("./.env")
+        await tmp_rc.start(config.socket_url, config.username, config.password)
+        tmp_channel_list=[]
+        for channel_id, channel_type in await tmp_rc.get_channels():
+            tmp_channel_list.append(channel_id)
+        if not self.channel_id in tmp_channel_list:
+            await self.rc.unsubscribe(subscription_id=self.subscription_id)
+            return
+
         if re_received:
             return
 
@@ -79,8 +93,8 @@ class ChannelSubscriber:
         while True:
             try:
                 await self.rc.start(self.config.socket_url, self.config.username, self.config.password)
-                await self.rc.subscribe_to_channel_messages(self.channel_id, self.subscribe_callback)
-                await self.rc.send_message(text=f"*System Notification*: AI response server has started. *{self.config.username}* is now responsive.", channel_id=self.channel_id, thread_id=None)
+                self.subscription_id = await self.rc.subscribe_to_channel_messages(self.channel_id, self.subscribe_callback)
+                await self.rc.send_message(text=f"*Hi. I'm ready.*", channel_id=self.channel_id, thread_id=None)
                 await self.rc.run_forever()
 
             except Exception as e:

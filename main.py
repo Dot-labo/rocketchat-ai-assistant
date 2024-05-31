@@ -10,6 +10,14 @@ from rocketchat_async import RocketChat
 
 from utils.config import Config
 
+def auto_launch_callback(channel_id, channel_qualifier, event_type, info):
+    config = Config("./.env")
+    if(event_type == 'joined'):
+        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id)
+        asyncio.create_task(cs.up())
+    else:
+        return
+
 class ResponseMessageModel(BaseModel):
     assistant_id: str
     ai_thread_id: str
@@ -31,6 +39,8 @@ async def startup_event():
         print(channel_id, channel_type)
         cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id)
         asyncio.create_task(cs.up())
+    await rc.subscribe_to_channel_changes(auto_launch_callback)
+    
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -39,14 +49,15 @@ async def shutdown_event():
     await rc.start(config.socket_url, config.username, config.password)
     for channel_id, channel_type in await rc.get_channels():
         print(channel_id, channel_type)
-        await rc.send_message(text=f"*System Notification*: AI response server has stopped. *{config.username}* is not responding.", channel_id=channel_id, thread_id=None)
+        await rc.send_message(text=f"*Bye.*", channel_id=channel_id, thread_id=None)
 
 @app.post("/gpt_response")
 async def gpt_response(input: ResponseMessageModel):
+    config = Config("./.env")
     print("#DEBUG in gpt_response(FastAPI)")
     input_message = input.input_message
     user = input.user_name
-    client = OpenAI()
+    client = OpenAI(organization=config.openai_organization) if config.openai_organization else OpenAI()
     assistant_id = input.assistant_id
     ai_thread_id = input.ai_thread_id
 
