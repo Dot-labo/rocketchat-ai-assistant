@@ -24,7 +24,10 @@ poetry install
 
 ### 3. Set Up the Bot Account
 Set up an account on your Rocket.Chat server to be used as a bot.
-Ensure that the bot’s username and password match those specified in the .env file created in the next step. The bot user must join the desired channels before running the server.
+Ensure that the bot’s username and password match those specified in the .env file created in the next step.
+Once the server is launched, a service for the bot will start on each channel where the bot exists. 
+If the bot is newly invited to a channel, a service will automatically start for that channel as well.
+If the bot is kicked, its process will automatically stop.
    
 ### 4. Configure Environment
 Ensure to place a .env file at the root of your project directory with the following contents.
