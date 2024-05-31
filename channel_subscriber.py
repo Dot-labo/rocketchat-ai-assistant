@@ -43,7 +43,8 @@ class ChannelSubscriber:
         asyncio.create_task(self.process_incoming_messages(*args))
 
     async def process_incoming_messages(self, channel_id, sender_id, msg_id, thread_id, msg, qualifier, unread, re_received):
-        print(f"DEBUG: self_cid: {self.channel_id} channel_id: {channel_id}, {sender_id}, {msg_id}, {thread_id}, {msg}, {qualifier}, {unread}, {re_received}")
+        print("=== DEBUG: process_incoming_messages ===")
+        print(f"channel_id: {channel_id}, sender_id: {sender_id}, msg_id: {msg_id}, thread_id: {thread_id}, msg: {msg}, qualifier: {qualifier}, unread: {unread}, re_received: {re_received}\n")
         """
         Handle incoming messages and perform actions based on the message context.
         - Unsubscribes if no longer member of the channel.
@@ -51,16 +52,13 @@ class ChannelSubscriber:
         - Creates a new thread for new messages with mentions.
         - Replies within the existing thread for threaded messages with mentions.
         """
-        tmp_rc = RocketChat()
+        tmp_rc = RocketChat() #self.rc is not working here
         config = Config("./.env")
         await tmp_rc.start(config.socket_url, config.username, config.password)
         tmp_channel_list=[]
         for channel_id, channel_type in await tmp_rc.get_channels():
             tmp_channel_list.append(channel_id)
-        print(tmp_channel_list)
         if not self.channel_id in tmp_channel_list:
-            print("ばいばい ")
-            await self.rc.send_message(text=f"*Bye.*", channel_id=self.channel_id, thread_id=None)
             await self.rc.unsubscribe(subscription_id=self.subscription_id)
             return
 
