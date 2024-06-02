@@ -101,6 +101,8 @@ async def gpt_response(input: ResponseMessageModel):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-    return_json = {"response": messages.data[0].content[0].text.value}
-    print(return_json)
-    return(messages.data[0].content[0].text.value)
+    try:
+        return_json = {"response": messages.data[0].content[0].text.value}
+        return(messages.data[0].content[0].text.value)
+    except:
+        return("No response from the AI")

@@ -26,7 +26,7 @@ async def send_typing_event_periodically(rc, channel_id, thread_id=None, interva
             await rc.send_typing_event(channel_id, thread_id)
             await asyncio.sleep(interval)
         except ConnectionClosedOK:
-            pass
+            return
         except Exception as e:
             print(f"Error in 'send_typing_event_periodically': {e}")
-            break
+            return
