@@ -12,10 +12,12 @@ from utils.message_utils import send_message_with_retry, send_typing_event_perio
 from utils.config import Config
 
 class ChannelSubscriber:
-    def __init__(self, address, username, password, channel_id):
+    def __init__(self, address, username, password, channel_id, channel_type, say_hello=False):
         #Setup GPT assistant and thread 
         self.config = Config("./.env")
         self.channel_id = channel_id
+        self.channel_type = channel_type #c: channel, p: private channel, d: direct message
+        self.say_hello = say_hello
         self.rc = RocketChat()
         self.client = OpenAI(organization=self.config.openai_organization) if self.config.openai_organization else OpenAI()
         self.thread_mapping = {}
@@ -94,7 +96,8 @@ class ChannelSubscriber:
             try:
                 await self.rc.start(self.config.socket_url, self.config.username, self.config.password)
                 self.subscription_id = await self.rc.subscribe_to_channel_messages(self.channel_id, self.subscribe_callback)
-                await self.rc.send_message(text=f"*Hi. I'm ready.*", channel_id=self.channel_id, thread_id=None)
+                if self.say_hello == True:
+                    await self.rc.send_message(text=f"*Hi. I'm ready.*", channel_id=self.channel_id, thread_id=None)
                 await self.rc.run_forever()
 
             except Exception as e:

@@ -13,7 +13,7 @@ from utils.config import Config
 def auto_launch_callback(channel_id, channel_qualifier, event_type, info):
     config = Config("./.env")
     if(event_type == 'joined'):
-        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id)
+        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type="c", say_hello=True)#HACK: channel_type is hardcoded to 'c' for now
         asyncio.create_task(cs.up())
     else:
         return
@@ -37,7 +37,11 @@ async def startup_event():
     await rc.start(config.socket_url, config.username, config.password)
     for channel_id, channel_type in await rc.get_channels():
         print(channel_id, channel_type)
-        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id)
+        if channel_type == "d":
+            say_hello = True
+        else:
+            say_hello = False
+        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
         asyncio.create_task(cs.up())
     await rc.subscribe_to_channel_changes(auto_launch_callback)
     
