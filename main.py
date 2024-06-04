@@ -10,14 +10,6 @@ from rocketchat_async import RocketChat
 
 from utils.config import Config
 
-def auto_launch_callback(channel_id, channel_type, event_type, info):
-    config = Config("./.env")
-    if(event_type == 'joined'):
-        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type=channel_type, say_hello=True)#HACK: channel_type is hardcoded to 'c' for now
-        asyncio.create_task(cs.up())
-    else:
-        return
-
 class ResponseMessageModel(BaseModel):
     assistant_id: str
     ai_thread_id: str
@@ -43,8 +35,6 @@ async def startup_event():
             say_hello = False
         cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
         asyncio.create_task(cs.up())
-    await rc.subscribe_to_channel_changes(auto_launch_callback) #If this instance is terminated, the auto-restart feature will no longer work and will need to be fixed.
-    
 
 @app.on_event("shutdown")
 async def shutdown_event():
