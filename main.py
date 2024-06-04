@@ -25,9 +25,31 @@ app = FastAPI()
 
 async def periodic_cs_management(cs_dict, interval=5):
     while True:
-        await asyncio.sleep(interval)  # 非同期的に待機
-        for cs in cs_dict.values():
-            print("DEBUG: cs.subscription_id", cs.subscription_id)
+        config = Config("./.env")
+        rc = RocketChat()
+        try:
+            user_joining_channel_list = []
+            user_joining_channel_type = []
+            await rc.start(config.socket_url, config.username, config.password)
+            await asyncio.sleep(interval)  # 非同期的に待機
+            for channel_id, channel_type in await rc.get_channels():
+                print(channel_id, channel_type)
+                user_joining_channel_list.append(channel_id)
+                user_joining_channel_type.append(channel_type)
+
+            for channel_id in list(cs_dict.keys()):
+                if channel_id not in user_joining_channel_list:
+                    cs = cs_dict[channel_id]
+                    await cs.down()
+                    del cs_dict[channel_id]
+                else:
+                    pass
+                
+        except Exception as e:
+            print(f"Error in periodic_cs_management: {e}")
+        finally:
+            print("===")
+
 
 @app.on_event("startup")
 async def startup_event():

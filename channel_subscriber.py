@@ -92,6 +92,10 @@ class ChannelSubscriber:
             except Exception as e:
                 print(f'Error: {e}. Reconnecting...')
                 await asyncio.sleep(random.uniform(4, 8)) 
+    
+    async def down(self):
+        print(f"DEBUG: Channel Subscriber {self.channel_id} is down...")
+        await self.rc.unsubscribe(self.subscription_id)
 
 if __name__ == "__main__":
     load_dotenv("./.env")
