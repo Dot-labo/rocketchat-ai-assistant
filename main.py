@@ -22,6 +22,8 @@ global thread_id
 global assistant_id
 
 app = FastAPI()
+global cs_dict
+cs_dict = {} # {channel_id: ChannelSubscriber}
 
 async def periodic_cs_management(cs_dict, interval=5):
     while True:
@@ -64,22 +66,10 @@ async def periodic_cs_management(cs_dict, interval=5):
             print("===")
 
 
+
 @app.on_event("startup")
 async def startup_event():
-    cs_dict = {} #{channel_id: ChannelSubscriber}
-    config = Config("./.env")
-    rc = RocketChat()
-    await rc.start(config.socket_url, config.username, config.password)
-    for channel_id, channel_type in await rc.get_channels():
-        print(channel_id, channel_type)
-        if channel_type == "d":
-            say_hello = True
-        else:
-            say_hello = False
-        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
-        asyncio.create_task(cs.up())
-        cs_dict[channel_id] = cs
-
+    global cs_dict
     asyncio.create_task(periodic_cs_management(cs_dict=cs_dict, interval=5))
 
 @app.on_event("shutdown")
