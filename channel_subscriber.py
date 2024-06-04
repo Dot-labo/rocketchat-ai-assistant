@@ -49,21 +49,10 @@ class ChannelSubscriber:
         print(f"channel_id: {channel_id}, sender_id: {sender_id}, msg_id: {msg_id}, thread_id: {thread_id}, msg: {msg}, qualifier: {qualifier}, unread: {unread}, re_received: {re_received}\n")
         """
         Handle incoming messages and perform actions based on the message context.
-        - Unsubscribes if no longer member of the channel.
         - Ends if the message is re-received.
         - Creates a new thread for new messages with mentions.
         - Replies within the existing thread for threaded messages with mentions.
         """
-        tmp_rc = RocketChat() #self.rc is not working here
-        config = Config("./.env")
-        await tmp_rc.start(config.socket_url, config.username, config.password)
-        tmp_channel_list=[]
-        for channel_id, channel_type in await tmp_rc.get_channels():
-            tmp_channel_list.append(channel_id)
-        if not self.channel_id in tmp_channel_list:
-            await self.rc.unsubscribe(subscription_id=self.subscription_id)
-            return
-
         if re_received:
             return
 
