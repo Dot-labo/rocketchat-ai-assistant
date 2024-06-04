@@ -43,6 +43,7 @@ async def periodic_cs_management(cs_dict, interval=5):
                 if channel_id not in user_joining_channel_list:
                     cs = cs_dict[channel_id]
                     await cs.down()
+                    print(f"DEBUG: cs.down() is called. channel: {channel_id}")
                     del cs_dict[channel_id]
                 else:
                     pass
@@ -55,7 +56,7 @@ async def periodic_cs_management(cs_dict, interval=5):
                         say_hello = False
                     cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
                     asyncio.create_task(cs.up())
-                    print("DEBUG: cs.up() is called")
+                    print(f"DEBUG: cs.up() is called. channel: {channel_id}")
                     cs_dict[channel_id] = cs
                 else:
                     pass
@@ -73,7 +74,7 @@ async def startup_event():
         await cs.down()
     cs_dict.clear()
 
-    asyncio.create_task(periodic_cs_management(cs_dict=cs_dict, interval=5))
+    asyncio.create_task(periodic_cs_management(cs_dict=cs_dict, interval=30))
 
 @app.on_event("shutdown")
 async def shutdown_event():
