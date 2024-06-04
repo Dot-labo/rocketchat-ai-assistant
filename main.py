@@ -44,6 +44,19 @@ async def periodic_cs_management(cs_dict, interval=5):
                     del cs_dict[channel_id]
                 else:
                     pass
+            
+            for channel_id, channel_type in zip(user_joining_channel_list, user_joining_channel_type):
+                if channel_id not in cs_dict:
+                    if channel_type == "d":
+                        say_hello = True
+                    else:
+                        say_hello = False
+                    cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
+                    asyncio.create_task(cs.up())
+                    print("DEBUG: cs.up() is called")
+                    cs_dict[channel_id] = cs
+                else:
+                    pass
                 
         except Exception as e:
             print(f"Error in periodic_cs_management: {e}")
