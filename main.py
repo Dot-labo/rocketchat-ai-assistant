@@ -32,8 +32,8 @@ async def periodic_cs_management(cs_dict, interval=5):
         try:
             user_joining_channel_list = []
             user_joining_channel_type = []
+            await asyncio.sleep(interval)
             await rc.start(config.socket_url, config.username, config.password)
-            await asyncio.sleep(interval)  # 非同期的に待機
             for channel_id, channel_type in await rc.get_channels():
                 print(channel_id, channel_type)
                 user_joining_channel_list.append(channel_id)
@@ -66,10 +66,13 @@ async def periodic_cs_management(cs_dict, interval=5):
             print("===")
 
 
-
 @app.on_event("startup")
 async def startup_event():
     global cs_dict
+    for cs in cs_dict.values():
+        await cs.down()
+    cs_dict.clear()
+
     asyncio.create_task(periodic_cs_management(cs_dict=cs_dict, interval=5))
 
 @app.on_event("shutdown")
