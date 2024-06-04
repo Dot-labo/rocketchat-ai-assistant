@@ -23,6 +23,12 @@ global assistant_id
 
 app = FastAPI()
 
+async def periodic_cs_management(cs_dict, interval=5):
+    while True:
+        await asyncio.sleep(interval)  # 非同期的に待機
+        for cs in cs_dict.values():
+            print("DEBUG: cs.subscription_id", cs.subscription_id)
+
 @app.on_event("startup")
 async def startup_event():
     cs_dict = {} #{channel_id: ChannelSubscriber}
@@ -38,15 +44,8 @@ async def startup_event():
         cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
         asyncio.create_task(cs.up())
         cs_dict[channel_id] = cs
-    print("DEBUG: cs_dict", cs_dict)
-    async def periodic_debug(cs_dict):
-        while True:
-            await asyncio.sleep(5)  # 非同期的に待機
-            for cs in cs_dict.values():
-                print("DEBUG: cs.subscription_id", cs.subscription_id)
 
-    # periodic_debugタスクを起動
-    asyncio.create_task(periodic_debug(cs_dict))
+    asyncio.create_task(periodic_cs_management(cs_dict=cs_dict, interval=5))
 
 @app.on_event("shutdown")
 async def shutdown_event():
