@@ -1,3 +1,4 @@
+import time
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
@@ -10,14 +11,6 @@ from rocketchat_async import RocketChat
 
 from utils.config import Config
 
-def auto_launch_callback(channel_id, channel_type, event_type, info):
-    config = Config("./.env")
-    if(event_type == 'joined'):
-        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type=channel_type, say_hello=True)#HACK: channel_type is hardcoded to 'c' for now
-        asyncio.create_task(cs.up())
-    else:
-        return
-
 class ResponseMessageModel(BaseModel):
     assistant_id: str
     ai_thread_id: str
@@ -29,22 +22,60 @@ global thread_id
 global assistant_id
 
 app = FastAPI()
+global cs_dict
+cs_dict = {} # {channel_id: ChannelSubscriber}
+
+async def periodic_cs_management(cs_dict, interval=5):
+    while True:
+        config = Config("./.env")
+        rc = RocketChat()
+        try:
+            user_joining_channel_list = []
+            user_joining_channel_type = []
+            await rc.start(config.socket_url, config.username, config.password)
+            for channel_id, channel_type in await rc.get_channels():
+                print(channel_id, channel_type)
+                user_joining_channel_list.append(channel_id)
+                user_joining_channel_type.append(channel_type)
+
+            for channel_id in list(cs_dict.keys()):
+                if channel_id not in user_joining_channel_list:
+                    cs = cs_dict[channel_id]
+                    await cs.down()
+                    print(f"DEBUG: cs.down() is called. channel: {channel_id}")
+                    del cs_dict[channel_id]
+                else:
+                    pass
+            
+            for channel_id, channel_type in zip(user_joining_channel_list, user_joining_channel_type):
+                if channel_id not in cs_dict:
+                    if channel_type == "d":
+                        say_hello = True
+                    else:
+                        say_hello = False
+                    cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
+                    asyncio.create_task(cs.up())
+                    print(f"DEBUG: cs.up() is called. channel: {channel_id}")
+                    cs_dict[channel_id] = cs
+                else:
+                    pass
+                
+        except Exception as e:
+            print(f"Error in periodic_cs_management: {e}")
+
+        finally:
+            print("===")
+            await asyncio.sleep(interval)
+
 
 @app.on_event("startup")
 async def startup_event():
-    config = Config("./.env")
-    rc = RocketChat()
-    await rc.start(config.socket_url, config.username, config.password)
-    for channel_id, channel_type in await rc.get_channels():
-        print(channel_id, channel_type)
-        if channel_type == "d":
-            say_hello = True
-        else:
-            say_hello = False
-        cs = ChannelSubscriber(config.socket_url, config.username, config.password, channel_id, channel_type, say_hello=say_hello)
-        asyncio.create_task(cs.up())
-    await rc.subscribe_to_channel_changes(auto_launch_callback) #If this instance is terminated, the auto-restart feature will no longer work and will need to be fixed.
-    
+    global cs_dict
+    for cs in cs_dict.values():
+        await cs.down()
+    cs_dict.clear()
+
+    asyncio.create_task(periodic_cs_management(cs_dict=cs_dict, interval=30))
 
 @app.on_event("shutdown")
 async def shutdown_event():
