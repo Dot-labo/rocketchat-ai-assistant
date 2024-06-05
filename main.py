@@ -32,7 +32,6 @@ async def periodic_cs_management(cs_dict, interval=5):
         try:
             user_joining_channel_list = []
             user_joining_channel_type = []
-            await asyncio.sleep(interval)
             await rc.start(config.socket_url, config.username, config.password)
             for channel_id, channel_type in await rc.get_channels():
                 print(channel_id, channel_type)
@@ -63,8 +62,10 @@ async def periodic_cs_management(cs_dict, interval=5):
                 
         except Exception as e:
             print(f"Error in periodic_cs_management: {e}")
+
         finally:
             print("===")
+            await asyncio.sleep(interval)
 
 
 @app.on_event("startup")
